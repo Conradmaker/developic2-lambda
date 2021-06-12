@@ -17,22 +17,23 @@ exports.handler = async (event, context, callback) => {
   const kind = Key.split("/")[1];
   const ext = Key.split(".")[Key.split(".").length - 1].toLowerCase();
   const requiredFormat = ext === "jpg" ? "jpeg" : ext;
-  console.log("filename:", filename, "ext:", ext);
+  console.log("파일명(filename):", filename, "ext:", ext);
 
 
   try {
     const s3Object = await s3.getObject({Bucket, Key}).promise();
-    console.log("original", s3Object.Body.length);
+    console.log("원본용량(original)", s3Object.Body.length);
 
-
-await Promise.all(
+    await Promise.all(
     transforms.map(async item=>{
         const resizedImg = await sharp(s3Object.Body)
                                     .resize({width:item.width})
                                     .toFormat(requiredFormat)
                                     .toBuffer();
-        console.log(`width:${item.width},src:${`resize/${item.name}/${filename}`} image: ${resizedImg.length}`);
-        return await s3.putObject({Bucket,Key:`resize/${item.name}/${kind}/${filename}`,Body:resizedImg}).promise()
+
+        console.log(`변환완료: width:${item.width},src:${`resize/${item.name}/${filename}`} image: ${resizedImg.length}`);
+
+        return await s3.putObject({Bucket,Key:encodeURIComponent(`resize/${item.name}/${kind}/${filename}`),Body:resizedImg}).promise()
     })
 )
 
