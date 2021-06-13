@@ -33,7 +33,7 @@ exports.handler = async (event, context, callback) => {
 
         console.log(`변환완료: width:${item.width},src:${`resize/${item.name}/${filename}`} image: ${resizedImg.length}`);
 
-        return await s3.putObject({Bucket,Key:encodeURIComponent(`resize/${item.name}/${kind}/${filename}`),Body:resizedImg}).promise()
+        return await s3.putObject({Bucket,Key:`resize/${item.name}/${kind}/${filename}`,Body:resizedImg }).promise()
     })
 )
 
